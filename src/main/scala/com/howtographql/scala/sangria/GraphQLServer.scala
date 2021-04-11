@@ -16,10 +16,15 @@ import sangria.marshalling.sprayJson._
 //import akka.http.scaladsl.server._
 
 object GraphQLServer {
+
   private val dao = DBSchema.createDatabase
+
   def endpoint(requestJSON: JsValue)(implicit ec: ExecutionContext): Route = {
+
     val JsObject(fields) = requestJSON
-    val JsString(query)  = fields("query")
+
+    val JsString(query) = fields("query")
+
     QueryParser.parse(query) match {
       case Success(queryAst) =>
         val operation = fields.get("operationName") collect { case JsString(op) => op }
@@ -33,6 +38,7 @@ object GraphQLServer {
         complete(BadRequest)
     }
   }
+
   private def executeGraphQLQuery(query: Document, operation: Option[String], vars: JsObject)(
       implicit ec: ExecutionContext
   ) = {
